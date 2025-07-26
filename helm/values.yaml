@@ -1,0 +1,111 @@
+# Default values for snapshot-cosmos
+replicaCount: 1
+
+image:
+  repository: snapshot-cosmos
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+
+securityContext:
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+
+service:
+  type: ClusterIP
+  port: 8080
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Snapshot configuration
+config:
+  nodes:
+    cosmoshub:
+      enabled: true
+      node:
+        home_dir: "/data/cosmos/.cosmos"
+        chain_id: "cosmoshub-4"
+      snapshot:
+        interval: "24h"
+        retention: 7
+        temp_dir: "/tmp/snapshot-cosmos/cosmoshub"
+      s3:
+        bucket: "q163i-snapshots"
+        region: "us-east-1"
+        path_prefix: "snapshots/cosmoshub"
+
+    osmosis:
+      enabled: false
+      node:
+        home_dir: "/data/osmosis/.osmosisd"
+        chain_id: "osmosis-1"
+      snapshot:
+        interval: "12h"
+        retention: 14
+        temp_dir: "/tmp/snapshot-cosmos/osmosis"
+      s3:
+        bucket: "q163i-snapshots"
+        region: "us-east-1"
+        path_prefix: "snapshots/osmosis"
+
+# S3 credentials
+s3:
+  accessKey: ""
+  secretKey: ""
+  endpoint: ""
+
+# Node data volumes
+volumes:
+  cosmoshub:
+    enabled: true
+    persistentVolumeClaim:
+      claimName: "cosmos-data"
+    mountPath: "/data/cosmos"
+  
+  osmosis:
+    enabled: false
+    persistentVolumeClaim:
+      claimName: "osmosis-data"
+    mountPath: "/data/osmosis"
+
+# Daemon mode configuration
+daemon:
+  enabled: true
+  node: "cosmoshub"
+  interval: ""
+  upload: true
+
+# Logging
+logging:
+  level: "info"
+  format: "json" 

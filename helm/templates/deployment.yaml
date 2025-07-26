@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "snapshot-cosmos.fullname" . }}
+  labels:
+    {{- include "snapshot-cosmos.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "snapshot-cosmos.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "snapshot-cosmos.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "snapshot-cosmos.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - "./snapshot-cosmos"
+          args:
+            {{- if .Values.daemon.enabled }}
+            - "daemon"
+            - {{ .Values.daemon.node | quote }}
+            {{- else }}
+            - "list"
+            {{- end }}
+          env:
+            - name: SNAPSHOT_COSMOS_S3_BUCKET
+              value: {{ .Values.config.nodes.cosmoshub.s3.bucket | quote }}
+            - name: SNAPSHOT_COSMOS_S3_REGION
+              value: {{ .Values.config.nodes.cosmoshub.s3.region | quote }}
+            {{- if .Values.s3.accessKey }}
+            - name: AWS_ACCESS_KEY_ID
+              value: {{ .Values.s3.accessKey | quote }}
+            {{- end }}
+            {{- if .Values.s3.secretKey }}
+            - name: AWS_SECRET_ACCESS_KEY
+              value: {{ .Values.s3.secretKey | quote }}
+            {{- end }}
+            {{- if .Values.s3.endpoint }}
+            - name: SNAPSHOT_COSMOS_S3_ENDPOINT
+              value: {{ .Values.s3.endpoint | quote }}
+            {{- end }}
+            - name: SNAPSHOT_COSMOS_NODE_HOME_DIR
+              value: {{ .Values.config.nodes.cosmoshub.node.home_dir | quote }}
+            - name: SNAPSHOT_COSMOS_NODE_CHAIN_ID
+              value: {{ .Values.config.nodes.cosmoshub.node.chain_id | quote }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+              readOnly: true
+            {{- range $node, $volume := .Values.volumes }}
+            {{- if $volume.enabled }}
+            - name: {{ $node }}-data
+              mountPath: {{ $volume.mountPath }}
+              readOnly: true
+            {{- end }}
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "snapshot-cosmos.fullname" . }}-config
+        {{- range $node, $volume := .Values.volumes }}
+        {{- if $volume.enabled }}
+        - name: {{ $node }}-data
+          persistentVolumeClaim:
+            claimName: {{ $volume.persistentVolumeClaim.claimName }}
+        {{- end }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }} 

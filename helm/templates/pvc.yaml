@@ -1,0 +1,18 @@
+{{- range $node, $volume := .Values.volumes }}
+{{- if $volume.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ $volume.persistentVolumeClaim.claimName }}
+  labels:
+    {{- include "snapshot-cosmos.labels" $ | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 300Gi
+  storageClassName: ""
+{{- end }}
+{{- end }} 

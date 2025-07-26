@@ -1,0 +1,16 @@
+apiVersion: v2
+name: snapshot-cosmos
+description: Multi-node Cosmos blockchain snapshot service
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - cosmos
+  - blockchain
+  - snapshot
+  - s3
+home: https://github.com/q163i/snapshot-cosmos
+sources:
+  - https://github.com/q163i/snapshot-cosmos
+maintainers:
+  - name: q163i

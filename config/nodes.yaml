@@ -1,0 +1,75 @@
+---
+nodes:
+  # Cosmos Hub
+  cosmoshub:
+    enabled: true
+    node:
+      home_dir: "/home/cosmos/.cosmos"
+      data_dir: "data"
+      chain_id: "cosmoshub-4"
+      binary_path: "gaiad"
+      rpc_endpoint: "http://localhost:26657"
+    snapshot:
+      enabled: true
+      interval: "24h"
+      retention: 7
+      compression: true
+      temp_dir: "/tmp/snapshot-cosmos/cosmoshub"
+    s3:
+      bucket: "q163i-snapshots"
+      region: "us-east-1"
+      path_prefix: "snapshots/cosmoshub"
+      use_ssl: true
+
+  # Osmosis
+  osmosis:
+    enabled: true
+    node:
+      home_dir: "/home/osmosis/.osmosisd"
+      data_dir: "data"
+      chain_id: "osmosis-1"
+      binary_path: "osmosisd"
+      rpc_endpoint: "http://localhost:26657"
+    snapshot:
+      enabled: true
+      interval: "12h"
+      retention: 14
+      compression: true
+      temp_dir: "/tmp/snapshot-cosmos/osmosis"
+    s3:
+      bucket: "q163i-snapshots"
+      region: "us-east-1"
+      path_prefix: "snapshots/osmosis"
+      use_ssl: true
+
+  # Juno
+  juno:
+    enabled: true
+    node:
+      home_dir: "/home/juno/.juno"
+      data_dir: "data"
+      chain_id: "juno-1"
+      binary_path: "junod"
+      rpc_endpoint: "http://localhost:26657"
+    snapshot:
+      enabled: true
+      interval: "6h"
+      retention: 30
+      compression: true
+      temp_dir: "/tmp/snapshot-cosmos/juno"
+    s3:
+      bucket: "q163i-snapshots"
+      region: "us-east-1"
+      path_prefix: "snapshots/juno"
+      use_ssl: true
+
+# Global S3 settings (can be overridden per node)
+global_s3:
+  access_key: ""
+  secret_key: ""
+  endpoint: ""
+
+# Global logging settings
+logging:
+  level: "info"
+  format: "json" 

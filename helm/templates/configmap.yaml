@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "snapshot-cosmos.fullname" . }}-config
+  labels:
+    {{- include "snapshot-cosmos.labels" . | nindent 4 }}
+data:
+  nodes.yaml: |
+    nodes:
+      cosmoshub:
+        enabled: {{ .Values.config.nodes.cosmoshub.enabled }}
+        node:
+          home_dir: {{ .Values.config.nodes.cosmoshub.node.home_dir | quote }}
+          data_dir: "data"
+          chain_id: {{ .Values.config.nodes.cosmoshub.node.chain_id | quote }}
+          binary_path: "gaiad"
+          rpc_endpoint: "http://localhost:26657"
+        snapshot:
+          enabled: true
+          interval: {{ .Values.config.nodes.cosmoshub.snapshot.interval | quote }}
+          retention: {{ .Values.config.nodes.cosmoshub.snapshot.retention }}
+          compression: true
+          temp_dir: {{ .Values.config.nodes.cosmoshub.snapshot.temp_dir | quote }}
+        s3:
+          bucket: {{ .Values.config.nodes.cosmoshub.s3.bucket | quote }}
+          region: {{ .Values.config.nodes.cosmoshub.s3.region | quote }}
+          path_prefix: {{ .Values.config.nodes.cosmoshub.s3.path_prefix | quote }}
+          use_ssl: true
+
+      osmosis:
+        enabled: {{ .Values.config.nodes.osmosis.enabled }}
+        node:
+          home_dir: {{ .Values.config.nodes.osmosis.node.home_dir | quote }}
+          data_dir: "data"
+          chain_id: {{ .Values.config.nodes.osmosis.node.chain_id | quote }}
+          binary_path: "osmosisd"
+          rpc_endpoint: "http://localhost:26657"
+        snapshot:
+          enabled: true
+          interval: {{ .Values.config.nodes.osmosis.snapshot.interval | quote }}
+          retention: {{ .Values.config.nodes.osmosis.snapshot.retention }}
+          compression: true
+          temp_dir: {{ .Values.config.nodes.osmosis.snapshot.temp_dir | quote }}
+        s3:
+          bucket: {{ .Values.config.nodes.osmosis.s3.bucket | quote }}
+          region: {{ .Values.config.nodes.osmosis.s3.region | quote }}
+          path_prefix: {{ .Values.config.nodes.osmosis.s3.path_prefix | quote }}
+          use_ssl: true
+
+    global_s3:
+      access_key: {{ .Values.s3.accessKey | quote }}
+      secret_key: {{ .Values.s3.secretKey | quote }}
+      endpoint: {{ .Values.s3.endpoint | quote }}
+
+    logging:
+      level: {{ .Values.logging.level | quote }}
+      format: {{ .Values.logging.format | quote }} 
