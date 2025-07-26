@@ -109,7 +109,7 @@ jobs:
           GOOS=darwin GOARCH=arm64 go build -o snapshot-cosmos-darwin-arm64 .
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             snapshot-cosmos-linux-amd64
