@@ -108,4 +108,12 @@ daemon:
 # Logging
 logging:
   level: "info"
-  format: "json" 
+  format: "json"
+
+# Autoscaling
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80 
